@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #10161d;
+  --surface: #171f29;
+  --surface-2: #1d2733;
+  --text: #ede7da;
+  --muted: #8b94a3;
+  --amber: #e2a63b;
+  --teal: #4f8a7b;
+  --line: #2a3441;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(226, 166, 59, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(79, 138, 123, 0.08), transparent 45%);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 480px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.brand-mark {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 0.5px;
+}
+
+.brand-mark span { color: var(--amber); }
+
+.tagline {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 32px 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.input-row input {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.slug-prefix {
+  flex: 0 0 auto;
+}
+
+.slug-label {
+  margin-top: 18px;
+}
+
+.slug-prefix {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 28px 14px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .brand-mark {
+    font-size: 24px;
+  }
+
+  .input-row {
+    gap: 8px;
+  }
+
+  .input-row input {
+    flex: 1 1 100%;
+  }
+
+  .slug-prefix {
+    flex: 1 1 auto;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #submit-btn {
+    flex: 1 1 100%;
+  }
+
+  .ticket-bottom {
+    flex-wrap: wrap;
+  }
+
+  .barcode {
+    flex: 1 1 100%;
+  }
+}
+
+input[type="url"], input[type="text"] {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px 14px;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input[type="url"]:focus, input[type="text"]:focus {
+  border-color: var(--amber);
+}
+
+button {
+  background: var(--amber);
+  color: #1a1206;
+  border: none;
+  border-radius: 8px;
+  padding: 0 20px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+button:hover { filter: brightness(1.08); }
+button:active { transform: scale(0.97); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error-msg {
+  color: #e08585;
+  font-size: 13px;
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* --- Ticket (cartão de embarque) --- */
+
+.ticket {
+  margin-top: 24px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: none;
+  animation: rise 0.35s ease-out;
+}
+
+.ticket.show { display: block; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ticket-top {
+  padding: 20px 22px 18px;
+}
+
+.ticket-field {
+  margin-bottom: 14px;
+}
+
+.ticket-field:last-child { margin-bottom: 0; }
+
+.ticket-field .k {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.ticket-field .v {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.ticket-field.code .v {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+
+.perforation {
+  position: relative;
+  height: 0;
+  border-top: 2px dashed var(--line);
+  margin: 0 0;
+}
+
+.perforation::before, .perforation::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 20px;
+  height: 20px;
+  background: var(--bg);
+  border-radius: 50%;
+}
+
+.perforation::before { left: -10px; }
+.perforation::after { right: -10px; }
+
+.ticket-bottom {
+  padding: 16px 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.barcode {
+  flex: 1;
+  height: 26px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--muted) 0px, var(--muted) 2px,
+    transparent 2px, transparent 5px,
+    var(--muted) 5px, var(--muted) 6px,
+    transparent 6px, transparent 10px
+  );
+  opacity: 0.35;
+  border-radius: 3px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.copy-btn:hover { background: rgba(79, 138, 123, 0.12); }
+.copy-btn.copied { border-color: var(--amber); color: var(--amber); }
+
+.foot-note {
+  margin-top: 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.foot-note a { color: var(--teal); }
+
+/* --- 404 / redirect page --- */
+
+.redirect-card {
+  text-align: center;
+  padding: 40px 28px;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--line);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.redirect-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+
+.redirect-sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.home-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--amber);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--amber);
+}

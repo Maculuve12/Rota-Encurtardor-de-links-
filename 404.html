@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROTA — localizando...</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark">ROTA<span>.</span></div>
+    </div>
+
+    <div class="card redirect-card" id="redirect-card">
+      <div class="spinner" id="spinner"></div>
+      <p class="redirect-title" id="redirect-title">Localizando sua rota...</p>
+      <p class="redirect-sub" id="redirect-sub">Aguarde um instante.</p>
+      <a class="home-link" id="home-link" href="./" style="display:none;">← voltar para o início</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script>
+    const spinner = document.getElementById('spinner');
+    const title = document.getElementById('redirect-title');
+    const sub = document.getElementById('redirect-sub');
+    const homeLink = document.getElementById('home-link');
+
+    function getSlugFromPath() {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      return parts.length ? parts[parts.length - 1] : null;
+    }
+
+    function showNotFound() {
+      spinner.style.display = 'none';
+      title.textContent = 'Rota não encontrada';
+      sub.textContent = 'Esse link curto não existe ou foi removido.';
+      homeLink.style.display = 'inline-block';
+    }
+
+    async function redirect() {
+      const slug = getSlugFromPath();
+      if (!slug) { showNotFound(); return; }
+
+      const { data, error } = await supabaseClient
+        .from('links')
+        .select('url, clicks')
+        .eq('slug', slug)
+        .single();
+
+      if (error || !data) { showNotFound(); return; }
+
+      // conta o clique sem bloquear o redirecionamento
+      supabaseClient
+        .from('links')
+        .update({ clicks: (data.clicks || 0) + 1 })
+        .eq('slug', slug)
+        .then(() => {});
+
+      window.location.replace(data.url);
+    }
+
+    redirect();
+  </script>
+</body>
+</html>

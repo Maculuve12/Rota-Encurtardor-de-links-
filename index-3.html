@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROTA — encurtador de links</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark">ROTA<span>.</span></div>
+    </div>
+    <p class="tagline">cole um link longo, receba uma rota curta.</p>
+
+    <div class="card">
+      <label for="url-input">Link de destino</label>
+      <div class="input-row">
+        <input type="url" id="url-input" placeholder="https://exemplo.com/pagina-bem-longa" autocomplete="off">
+      </div>
+
+      <label for="slug-input" class="slug-label">Personalizar rota (opcional)</label>
+      <div class="input-row">
+        <span class="slug-prefix" id="slug-prefix">rota/</span>
+        <input type="text" id="slug-input" placeholder="promocao-verao" autocomplete="off" maxlength="30">
+        <button id="submit-btn">Gerar rota</button>
+      </div>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <div class="ticket" id="ticket">
+      <div class="ticket-top">
+        <div class="ticket-field">
+          <div class="k">De</div>
+          <div class="v" id="ticket-from"></div>
+        </div>
+        <div class="ticket-field code">
+          <div class="k">Rota</div>
+          <div class="v" id="ticket-code"></div>
+        </div>
+      </div>
+      <div class="perforation"></div>
+      <div class="ticket-bottom">
+        <div class="barcode"></div>
+        <button class="copy-btn" id="copy-btn">Copiar</button>
+      </div>
+    </div>
+
+    <p class="foot-note">os dados ficam armazenados no Supabase.<br>o código HTML é servido pelo GitHub Pages.</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script>
+    const urlInput = document.getElementById('url-input');
+    const slugInput = document.getElementById('slug-input');
+    const slugPrefix = document.getElementById('slug-prefix');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const ticket = document.getElementById('ticket');
+    const ticketFrom = document.getElementById('ticket-from');
+    const ticketCode = document.getElementById('ticket-code');
+    const copyBtn = document.getElementById('copy-btn');
+
+    const ALPHABET = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const SLUG_PATTERN = /^[a-zA-Z0-9_-]{3,30}$/;
+
+    // mostra o caminho real (ex: "seu-repo/") no prefixo do campo de personalização
+    slugPrefix.textContent = getBasePath().replace(/^\//, '') + '/' || '/';
+
+    function randomSlug(length = 6) {
+      let out = '';
+      for (let i = 0; i < length; i++) {
+        out += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+      }
+      return out;
+    }
+
+    function normalizeUrl(raw) {
+      const trimmed = raw.trim();
+      if (!/^https?:\/\//i.test(trimmed)) {
+        return 'https://' + trimmed;
+      }
+      return trimmed;
+    }
+
+    async function tryInsertSlug(slug, longUrl) {
+      const { error } = await supabaseClient
+        .from('links')
+        .insert({ slug, url: longUrl });
+      return error;
+    }
+
+    function isConflictError(error) {
+      return error && (error.code === '23505' || error.status === 409);
+    }
+
+    async function createShortLink(longUrl, customSlug) {
+      if (customSlug) {
+        const error = await tryInsertSlug(customSlug, longUrl);
+        if (!error) return customSlug;
+        if (isConflictError(error)) {
+          throw new Error('CUSTOM_TAKEN');
+        }
+        throw error;
+      }
+
+      // sem slug personalizado: tenta gerar um aleatório até achar um livre
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const slug = randomSlug(6);
+        const error = await tryInsertSlug(slug, longUrl);
+        if (!error) return slug;
+        if (!isConflictError(error)) throw error;
+      }
+      throw new Error('Não foi possível gerar uma rota única. Tente novamente.');
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      errorMsg.textContent = '';
+      const raw = urlInput.value;
+
+      if (!raw.trim()) {
+        errorMsg.textContent = 'Cole um link antes de continuar.';
+        return;
+      }
+
+      const longUrl = normalizeUrl(raw);
+
+      try {
+        new URL(longUrl);
+      } catch {
+        errorMsg.textContent = 'Esse link não parece válido.';
+        return;
+      }
+
+      const customSlugRaw = slugInput.value.trim();
+      if (customSlugRaw && !SLUG_PATTERN.test(customSlugRaw)) {
+        errorMsg.textContent = 'Use de 3 a 30 letras, números, "-" ou "_", sem espaços ou acentos.';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Gerando...';
+
+      try {
+        const slug = await createShortLink(longUrl, customSlugRaw || null);
+        const basePath = getBasePath();
+        const shortUrl = `${window.location.origin}${basePath}/${slug}`;
+
+        ticketFrom.textContent = longUrl;
+        ticketCode.textContent = shortUrl.replace(/^https?:\/\//, '');
+        ticket.dataset.fullUrl = shortUrl;
+        ticket.classList.add('show');
+        copyBtn.textContent = 'Copiar';
+        copyBtn.classList.remove('copied');
+        slugInput.value = '';
+      } catch (err) {
+        if (err.message === 'CUSTOM_TAKEN') {
+          errorMsg.textContent = 'Essa rota já está em uso. Escolha outro nome.';
+        } else {
+          console.error(err);
+          errorMsg.textContent = 'Algo deu errado ao salvar sua rota. Tente novamente.';
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Gerar rota';
+      }
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const fullUrl = ticket.dataset.fullUrl;
+      if (!fullUrl) return;
+      try {
+        await navigator.clipboard.writeText(fullUrl);
+        copyBtn.textContent = 'Copiado ✓';
+        copyBtn.classList.add('copied');
+      } catch {
+        errorMsg.textContent = 'Não foi possível copiar automaticamente.';
+      }
+    });
+
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 // A "publishable key" é feita para ficar exposta no front-end — isso é normal.
 // A segurança real vem das políticas de RLS configuradas na tabela (veja README.md).
 const SUPABASE_URL = "https://fdrafidpbumnaabwxxuj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_CtroIZCbTps7GyLwwjcGIg_yUywz34";
+const SUPABASE_KEY = "sb_publishable_CtroIZCbTps7GyLwwjcGIg_yUywz34h";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 

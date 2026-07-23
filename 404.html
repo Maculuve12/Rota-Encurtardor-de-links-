@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <div class="wrap">
+  <div class="wrap" id="wrap" style="visibility: hidden;">
     <div class="brand">
       <div class="brand-mark">ROTA<span>.</span></div>
     </div>
@@ -24,10 +24,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="config.js"></script>
   <script>
+    const wrap = document.getElementById('wrap');
     const spinner = document.getElementById('spinner');
     const title = document.getElementById('redirect-title');
     const sub = document.getElementById('redirect-sub');
     const homeLink = document.getElementById('home-link');
+
+    // só revela a página se a busca demorar (evita o "flash" da tela em buscas rápidas)
+    const revealTimer = setTimeout(() => {
+      wrap.style.visibility = 'visible';
+    }, 350);
 
     function getSlugFromPath() {
       const parts = window.location.pathname.split('/').filter(Boolean);
@@ -35,6 +41,8 @@
     }
 
     function showNotFound() {
+      clearTimeout(revealTimer);
+      wrap.style.visibility = 'visible';
       spinner.style.display = 'none';
       title.textContent = 'Rota não encontrada';
       sub.textContent = 'Esse link curto não existe ou foi removido.';
@@ -60,6 +68,7 @@
         .eq('slug', slug)
         .then(() => {});
 
+      clearTimeout(revealTimer);
       window.location.replace(data.url);
     }
 

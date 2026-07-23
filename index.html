@@ -20,12 +20,15 @@
         <input type="url" id="url-input" placeholder="https://exemplo.com/pagina-bem-longa" autocomplete="off">
       </div>
 
-      <label for="slug-input" class="slug-label">Personalizar rota (opcional)</label>
-      <div class="input-row">
-        <span class="slug-prefix" id="slug-prefix">rota/</span>
-        <input type="text" id="slug-input" placeholder="promocao-verao" autocomplete="off" maxlength="30">
-        <button id="submit-btn">Gerar rota</button>
+      <div class="slug-box">
+        <label for="slug-input" class="slug-label">Personalizar rota (opcional)</label>
+        <div class="input-row">
+          <span class="slug-prefix" id="slug-prefix">rota/</span>
+          <input type="text" id="slug-input" placeholder="promocao-verao" autocomplete="off" maxlength="30">
+        </div>
       </div>
+
+      <button id="submit-btn">Gerar rota</button>
       <div class="error-msg" id="error-msg"></div>
     </div>
 
@@ -47,7 +50,6 @@
       </div>
     </div>
 
-    <p class="foot-note">os dados ficam armazenados no Supabase.<br>o código HTML é servido pelo GitHub Pages.</p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

@@ -160,7 +160,8 @@
           errorMsg.textContent = 'Essa rota já está em uso. Escolha outro nome.';
         } else {
           console.error(err);
-          errorMsg.textContent = 'Algo deu errado ao salvar sua rota. Tente novamente.';
+          const detail = (err && (err.message || err.error_description || err.hint)) || 'erro desconhecido';
+          errorMsg.textContent = `Erro ao salvar: ${detail}`;
         }
       } finally {
         submitBtn.disabled = false;
